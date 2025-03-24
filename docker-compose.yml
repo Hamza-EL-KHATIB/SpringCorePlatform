@@ -1,5 +1,4 @@
 services:
-  #  user specific db
   postgres-user:
     container_name: postgres-awholelottadata
     image: postgres
