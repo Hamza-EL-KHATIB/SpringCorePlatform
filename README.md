@@ -56,11 +56,10 @@ applications. I hope it helps your journey too!
 
 ## 🛠️ Technology Stack
 
-  <summary>Click to expand the full technology stack</summary>
 
 ### Backend Framework
 
-- Spring Boot 2.6.3 (Note: Consider upgrading for production use)
+- Spring Boot 2.6.3
 - Java 8
 - Spring Data JPA
 
@@ -211,8 +210,6 @@ Here you can explore and test all available API endpoints.
 ## 🗃️ Project Structure
 
 
-  <summary>Expand to see the full project structure</summary>
-
 ```
 com.springcoreplatform
 ├── RestApplication.java                  # Main application entry point
@@ -307,7 +304,6 @@ The JWT implementation provides:
 ## 🚨 What Could Be Improved
 
 <details>
-  <summary>Expand for code improvement suggestions</summary>
 
 After analyzing the codebase, here are some potential improvements:
 
@@ -395,7 +391,6 @@ For comprehensive testing:
 
 ## 🌐 Docker Integration
 
-  <summary>Expand for Docker configuration details</summary>
 
 The project uses Docker Compose to set up:
 
