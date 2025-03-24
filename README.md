@@ -90,8 +90,7 @@ applications. I hope it helps your journey too!
 - REST controllers
 - DTO pattern
 - Exception handling
-- Multilingual support (Java & Kotlin)
-
+- Clean Java implementation
 
 ## 🎓 Learning Pathways
 
@@ -100,10 +99,10 @@ Explore the codebase based on what you want to learn:
 | If you want to learn about... | Start by exploring...                                                                      |
 |-------------------------------|--------------------------------------------------------------------------------------------|
 | JWT Authentication            | 1. `WebSecurity.java` <br> 2. `AuthenticationFilter.java` <br> 3. `SecurityConstants.java` |
-| REST Controller Design        | 1. `UserController.kt` <br> 2. `CityController.kt`                                         |
+| REST Controller Design        | 1. `UserController.java` <br> 2. `CityController.java`                                     |
 | Exception Handling            | 1. `AppExceptionHandler.java` <br> 2. `UserServiceException.java`                          |
 | Data Persistence              | 1. `UserEntity.java` <br> 2. `UserRepository.java` <br> 3. `UserServiceImpl.java`          |
-| File Handling                 | 1. `FileServiceImpl.java` <br> 2. `CityController.kt` (upload endpoint)                    |
+| File Handling                 | 1. `FileServiceImpl.java` <br> 2. `CityController.java` (upload endpoint)                  |
 | DTO Pattern                   | 1. `UserDto.java` <br> 2. `CityDto.java`                                                   |
 
 ## 🚀 Getting Started
@@ -235,17 +234,17 @@ com.springcoreplatform
 │
 ├── presentationlayer                     # Controller layer
 │   ├── controller                        # REST controllers
-│   │   ├── CityController.kt
-│   │   └── UserController.kt
+│   │   ├── CityController.java
+│   │   └── UserController.java
 │   └── model                             # Request/Response models
 │       ├── request
-│       │   ├── UserDetailsRequestModel.kt
+│       │   ├── UserDetailsRequestModel.java
 │       │   └── UserLoginRequestModel.java
 │       └── response
 │           ├── ErrorMessage.java
-│           ├── ErrorMessages.kt
-│           ├── FileUploadResponseMessage.kt
-│           ├── OperationStatusModel.kt
+│           ├── ErrorMessages.java
+│           ├── FileUploadResponseMessage.java
+│           ├── OperationStatusModel.java
 │           ├── RequestOperationName.java
 │           ├── RequestOperationStatus.java
 │           └── UserRest.java
@@ -303,7 +302,7 @@ The JWT implementation provides:
 - **Exception handling** provides consistent error responses
 - **Unit testing** ensures code reliability
 - **DTO pattern** provides clean data transfer
-- **Multilingual support** with both Java and Kotlin
+- **Consistent Java style** throughout the codebase
 
 ## 🚨 What Could Be Improved
 
@@ -407,43 +406,71 @@ The project uses Docker Compose to set up:
 
 ```yaml
 services:
-  postgres-user:
-    container_name: postgres-awholelottadata
-    image: postgres
+  postgres:
+    container_name: api-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_USER: helk
-      PGDATA: /data/postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_USER: ${DB_USER:-helk}
+      POSTGRES_DB: rest_api_db
+      PGDATA: /var/lib/postgresql/data
     volumes:
-      - postgres-user:/data/postgres
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
-      - postgres
-    restart: unless-stopped
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-helk} -d rest_api_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
 
   pgadmin:
-    container_name: pgadmin-awholelottadata
-    image: dpage/pgadmin4
+    container_name: api-pgadmin
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-      - pgadmin:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
     ports:
       - "5050:80"
     networks:
-      - postgres
-    restart: unless-stopped
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
 
 networks:
-  postgres:
+  backend:
     driver: bridge
+    name: api_backend_network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
 
 volumes:
-  postgres-user:
-  pgadmin:
+  postgres_data:
+    name: api_postgres_data
+  pgadmin_data:
+    name: api_pgadmin_data
 ```
 
 ### Database Connection
@@ -453,22 +480,25 @@ The application connects to PostgreSQL using the following properties (from appl
 ```yaml
 spring:
   datasource:
-    password: password
-    url: jdbc:postgresql://localhost:5432/awholelottadata_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/rest_api_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
     username: helk
+    password: password
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 ```
 
 ### Using pgAdmin
 
 1. Access pgAdmin at http://localhost:5050
 2. Login with:
-    - Email: pgadmin4@pgadmin.org
+    - Email: admin@example.com
     - Password: admin
 3. Add a new server connection:
-    - Host: postgres-user
+    - Host: postgres
     - Port: 5432
     - Username: helk
     - Password: password
