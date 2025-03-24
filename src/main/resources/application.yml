@@ -2,12 +2,12 @@ server:
     port: 8080
 spring:
     datasource:
-        password: password
-        url: jdbc:postgresql://localhost:5432/awholelottadata_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
+        url: jdbc:postgresql://localhost:5432/rest_api_db?useSSL=false&allowMultiQueries=true&serverTimezone=UTC
         username: helk
+        password: password
     jpa:
         hibernate:
-            ddl-auto: update
+            ddl-auto: create
         properties:
             hibernate:
                 dialect: org.hibernate.dialect.PostgreSQLDialect
