@@ -215,7 +215,7 @@ Here you can explore and test all available API endpoints.
   <summary>Expand to see the full project structure</summary>
 
 ```
-com.rest
+com.springcoreplatform
 ├── RestApplication.java                  # Main application entry point
 ├── SpringApplicationContext.java         # Application context for dependency injection
 ├── SwaggerConfig.java                    # Swagger documentation configuration

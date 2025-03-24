@@ -9,6 +9,12 @@ target/
 /target/
 target
 target/*
+target/**
+**/target/
+/.target/
+/.target
+/.target/*
+/.target/**
 out/
 .idea/
 idea/
