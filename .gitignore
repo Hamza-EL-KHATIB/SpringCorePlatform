@@ -6,6 +6,9 @@ rest.iml
 *.war
 *.class
 target/
+/target/
+target
+target/*
 out/
 .idea/
 idea/
@@ -22,4 +25,3 @@ idea\
 *.*.swp
 *.pb
 /.idea/
-/target/
